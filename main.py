@@ -7,6 +7,10 @@ import updateCrypto
 
 client = discord.Client()
 
+db["GreenAlert"] = False
+db["RedAlert"] = False
+db["Ready"] = False
+
 
 def addApelido(message):
   apelido = message.content[9:]
@@ -46,6 +50,7 @@ def delApelido(message):
 @client.event
 async def on_ready():
   print(f'{client.user} is online')
+  db["Ready"] = True
 
 
 @client.event
@@ -127,39 +132,40 @@ async def on_message(message):
       await message.channel.send(resposta)
       print(db["apelidos"])
 
-  
-  elif message.content.startswith('!thc'):
-    if len(message.content) <= 5:
-      print(message.content)
-      await message.channel.send(f'THC price: ${db["THCDATA"]["price"]}')
-    else:
-      param = message.content[5:]
-      await message.channel.send(f'THC {param}: ${db["THCDATA"][param]}')
-  
-  elif message.content.startswith('!thg'):
-    if len(message.content) <= 5:
-      print(message.content)
-      await message.channel.send(f'THG price: ${db["THGDATA"]["price"]}')
-      print(message.channel)
-    else:
-      param = message.content[5:]
-      await message.channel.send(f'THG {param}: {db["THGDATA"][param]}')
+  cryptoChat = client.get_guild(130408666439352320).get_channel(935293610432290827)
+  if (message.channel == cryptoChat):
+    if message.content.startswith('!thc'):
+      if len(message.content) <= 5:
+        print(message.content)
+        await message.channel.send(f'THC price: ${db["THCDATA"]["price"]}')
+      else:
+        param = message.content[5:]
+        await message.channel.send(f'THC {param}: ${db["THCDATA"][param]}')
+    
+    elif message.content.startswith('!thg'):
+      if len(message.content) <= 5:
+        print(message.content)
+        await message.channel.send(f'THG price: ${db["THGDATA"]["price"]}')
+        print(message.channel)
+      else:
+        param = message.content[5:]
+        await message.channel.send(f'THG {param}: {db["THGDATA"][param]}')
 
-  elif message.content.startswith('!btc'):
-    if len(message.content) <= 5:
-      await message.channel.send(f'BTC price: ${db["BTCDATA"]["price"]}')
-    else:
-      param = message.content[5:]
-      await message.channel.send(f'BTC {param}: {db["BTCDATA"][param]}')
-  
-  elif message.content.startswith('!eth'):
-    if len(message.content) <= 5:
-      await message.channel.send(f'THC price: ${db["ETHDATA"]["price"]}')
-    else:
-      param = message.content[5:]
-      await message.channel.send(f'ETH {param}: {db["ETHDATA"][param]}')
-  elif message.content.startswith('!last_updated'):
-    await message.channel.send(f'{db["lastUpdate"]}')
+    elif message.content.startswith('!btc'):
+      if len(message.content) <= 5:
+        await message.channel.send(f'BTC price: ${db["BTCDATA"]["price"]}')
+      else:
+        param = message.content[5:]
+        await message.channel.send(f'BTC {param}: {db["BTCDATA"][param]}')
+    
+    elif message.content.startswith('!eth'):
+      if len(message.content) <= 5:
+        await message.channel.send(f'THC price: ${db["ETHDATA"]["price"]}')
+      else:
+        param = message.content[5:]
+        await message.channel.send(f'ETH {param}: {db["ETHDATA"][param]}')
+    elif message.content.startswith('!last_updated'):
+      await message.channel.send(f'{db["lastUpdate"]}')
 
   if message.author.display_name == 'JP_Regazzi':
     #await message.add_reaction("👏")
@@ -171,7 +177,8 @@ async def fireAlarm():
   while True:
     try:
       await updateCrypto.asyncio.sleep(20)
-      chatchannel = client.get_guild(130408666439352320).get_channel(277140365025345536)
+      print(f'Tried to fire the alarm\nGreen Alert: {db["GreenAlert"]}\nRed Alert: {db["RedAlert"]}\n')
+      chatchannel = client.get_guild(130408666439352320).get_channel(935293610432290827)
       if db["GreenAlert"]:
         await chatchannel.send('<@&863661861114740788>')
         await chatchannel.send(f'DEU BOM TIME:\nTHC: ${db["THCDATA"]["price"]} \nTHG: ${db["THGDATA"]["price"]}')
@@ -180,10 +187,9 @@ async def fireAlarm():
         await chatchannel.send('<@&863661861114740788>')
         await chatchannel.send(f'FUDEU GALERA:\nTHC: ${db["THCDATA"]["price"]}\nTHG: ${db["THGDATA"]["price"]}')
         await updateCrypto.asyncio.sleep(36000)
-      await updateCrypto.asyncio.sleep(20)
     except Exception as e:
       print(e)
-      await updateCrypto.asyncio.sleep(20)
+    await updateCrypto.asyncio.sleep(200)
   
 
 client.loop.create_task(updateCrypto.looping())

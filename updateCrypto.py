@@ -39,10 +39,10 @@ def cryptoRequest():
     db["lastUpdate"] = lastUpdate
     
     print(db["lastUpdate"])
-    print(f'\nBTC price: ${db["BTCDATA"]["price"]}')
-    print(f'\nETH price: ${db["ETHDATA"]["price"]}')
-    print(f'\nTHC price: ${db["THCDATA"]["price"]}')
-    print(f'\nTHG price: ${db["THGDATA"]["price"]}')
+    print(f'BTC price: ${db["BTCDATA"]["price"]}')
+    print(f'ETH price: ${db["ETHDATA"]["price"]}')
+    print(f'THC price: ${db["THCDATA"]["price"]}')
+    print(f'THG price: ${db["THGDATA"]["price"]}\n')
 
   except (ConnectionError, Timeout, TooManyRedirects) as e:
     print(e)
@@ -50,27 +50,27 @@ def cryptoRequest():
 async def looping():
   while True: # not client.is_closed()
     try:
+      await asyncio.sleep(20)
       cryptoRequest()
       updateAlarm()
       await asyncio.sleep(240)
     except Exception as e:
       print(e)
-      await asyncio.sleep(240)
+      await asyncio.sleep(180)
 
-
-db["GreenAlert"] = False
-db["RedAlert"] = False
 
 def updateAlarm():
-  if (db["THCDATA"]["price"] >= 0.07) or (db["THGDATA"]["price"] >= 5): # Liga se acima de algo
+  print("updating Alarms")
+  if (db["THCDATA"]["percent_change_24h"] >= 5.0) or (db["THGDATA"]["percent_change_24h"] >= 5.0): # Liga se acima de algo
     if not db["GreenAlert"]:
       db["GreenAlert"] = True
   else: # Desliga se desceu novamente
     if db["GreenAlert"]:
       db["GreenAlert"] = False
-  if (db["THCDATA"]["price"] <= 0.058) or (db["THGDATA"]["price"] <= 3.5): # Liga se abaixo de algo
+  if (db["THCDATA"]["percent_change_24h"] <= -5.0) or (db["THGDATA"]["percent_change_24h"] <= -5.0): # Liga se abaixo de algo
     if not db["RedAlert"]: 
       db["RedAlert"] = True
   else: # Desliga se subiu novamente
     if db["RedAlert"]:
       db["RedAlert"] = False
+  print(f'Green Alert: {db["GreenAlert"]}\nRed Alert: {db["RedAlert"]}\n')
